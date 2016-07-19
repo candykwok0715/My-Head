@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<title>Project</title>
+
+	<script src="lib/gl-matrix.js"></script>
+	<script src="myhead.js"></script>
+
+	<script id="shader-vs" type="x-shader/x-vertex">
+		attribute vec3 aVertexPosition;
+		attribute vec3 aVertexNormal;
+		uniform float glLightPosition1X;
+		uniform float glLightPosition1Y;
+		uniform float glLightPosition1Z;	
+		
+		uniform float glLightPosition2X;
+		uniform float glLightPosition2Y;
+		uniform float glLightPosition2Z;	
+
+		uniform mat4 uMVMatrix;
+		uniform mat4 uPMatrix;
+		varying highp vec4 vColor;
+		void main(void) {
+			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+
+			//lighting
+			vec3 ambientLight = vec3(0, 0, 0);
+			vec3 diffuseLightColor1 = vec3(0.0, 0.0, 1.0);
+			vec3 diffuseLightColor2 = vec3(1.0, 0.0, 0.0);
+
+			vec3 pointLightPosition1 = vec3(glLightPosition1X, glLightPosition1Y, glLightPosition1Z); 
+			vec3 pointLightPosition2 = vec3(glLightPosition2X, glLightPosition2Y, glLightPosition2Z); //(0.1,-4.1,0.1);
+			
+			vec3 pointLightDirection1 = vec3(pointLightPosition1.xyz - aVertexPosition.xyz) ;
+			vec3 pointLightDirection2 = vec3(pointLightPosition2.xyz - aVertexPosition.xyz);
+			
+			vec3  multipleLightSources = diffuseLightColor1 * dot(normalize(aVertexNormal), normalize(pointLightDirection1)) 
+					+ diffuseLightColor2 * dot(normalize(aVertexNormal), normalize(pointLightDirection2));
+			vec3 diffuseLightAmount = max( multipleLightSources, 0.0)  ;
+			
+			vColor = vec4(ambientLight + diffuseLightAmount, 1.0);
+		}
+	</script>
+	<script id="shader-fs" type="x-shader/x-fragment">
+		varying highp vec4 vColor;
+		void main(void) {
+			gl_FragColor = vColor;
+		}
+	</script>
+
+</head>
+
+<body onload="initWebGL()">
+	<canvas id="my-canvas" width="563" height="450">
+		Your browser does not support the HTML5 canvas element.
+	</canvas>
+	<table>
+	  <tr><td><font color="red">Please use Mozilla Firefox to Open!! <br/>Please do <b>NOT</b> press the key continuously, otherwise the model might <br/>not be rendered well with "slow" computers</font></td></tr>
+	  <tr><td><b>A-KEY: to rotate the lights only</b></td></tr>
+  	  <tr><td><b>S-KEY: to rotate the head and the lights together</b></td></tr>
+  	  <tr><td><b>ESC-KEY: to reset the scene to the original orientation</b></td></tr>
+	  <tr><td>When rotate the lights or head together: <br/> 
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - left and right arrow keys: y-rotation<br/> 
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - up and down arrow keys: x-rotation
+	  </td></tr>
+	  </table>
+</body>
+
+</html>
+</html>
